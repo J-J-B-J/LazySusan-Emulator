@@ -28,25 +28,26 @@ class table_object:
             turn = (360 - turn) * -1
             
         if(turn < 0):
-            turn = turn * -1
-            print("The table turned " + str(turn) + " degrees anticlockwise.")
-        else:
+            print("The table turned " + str(turn*-1) + " degrees anticlockwise.")
+        if(turn > 0):
             print("The table turned " + str(turn) + " degrees clockwise.")
+        if(turn == 0):
+            print("The table did not move.")
         delay(1000)
         print_current_position()
         delay(1000)
 
 
-bible = table_object("Bible", 0)
-fruit = table_object("Fruit", 0)
-desert = table_object("Desert", 0)
+cutlery = table_object("Cutlery", 0)
+sauce = table_object("Sauce", 90)
+desert = table_object("Desert", 270)
 
 
 objects = {
-    "Bible": bible,
-    "Fruit": fruit,
-    "Desert": desert
-
+    "Cutlery": cutlery,
+    "Sauce": sauce,
+    "Desert": desert,
+}
 
 while True:
     action = str(input("Enter action: "))
@@ -54,19 +55,17 @@ while True:
     if action == "goto":
         person = str(input("Who is this? "))
         
-        if person == "J":
+        if person == "A":
             modifier = int(0)
             
-        if person == "G":
+        if person == "B":
             modifier = int(90)
             
-        if person == "B":
+        if person == "C":
             modifier = int(180)
 
-        if person == "A":
+        if person == "D":
             modifier = int(270)
-
-        print("Modifier: " + str(modifier))
 
         goto = input("Where to? ")
 
