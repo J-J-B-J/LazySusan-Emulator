@@ -2,6 +2,13 @@ import time #The time library is used to wait in between long chunks of text
 
 current_position = 0    #Set the # of degrees the table has turned = 0
 
+modifiers = {   #This dictionary keeps track of people and their positions around the table
+    "A": 0,
+    "B": 90,
+    "C": 180,
+    "D": 270,
+    }
+
 #The modifier is used when the table needs to turn to face an item to a person.
 #Each person has a modifier that is added to the current position to calculate
 #how much to turn.
@@ -23,32 +30,21 @@ def print_current_position(): #This function prints table's current position
     print("The table is now in position " + str(current_position) + ".")
 print_current_position()    #Run the above function upon program run
 
-def invalid_answer(user_input, error):  #Print an error message
-    print("Sorry, but '" + user_input + "' " + error)
-
 def get_modifier(): #This function returns the modifier for the specified user
-    first_time = True   #The below while loop is on the first iteration
-    modifier = "X"  #So that if the input isn't A/B/C/D, the program will know
+    global modifier
+    modifier = "X"  #So that if the input isn't existing, the program will know
     person = "" #Create the variable person outside of the while loop scope
-    
-    while modifier == "X":  #While the person hasn't given a straight andswer
-        if first_time == False: #If this is the 2nd+ iteration,
-            invalid_answer(person, "is not a valid answer.")  #Give an error
-        person = str(input("Who is this? "))    #Set person to user input
-        first_time = False  #This is now not the first iteration
-        if person == "A":   #If the user input is A
-            modifier = int(0)   #Then set the modifier to A's modifier
-            
-        if person == "B":
-            modifier = int(90)
-                
-        if person == "C":
-            modifier = int(180)
-
-        if person == "D":
-            modifier = int(270)
-
+    person = str(input("Who is this? "))    #Set person to user input
+    for p, m in modifiers.items():
+        if person == p:
+            modifier = m
+    assert modifier != "X", "The person you entered does not exist"
     return modifier #Return the modifier once the user has given a valid answer
+
+
+
+
+
 
 #This class is for real-world objects that can be placed on the lazy susan
 class table_object:
@@ -97,6 +93,12 @@ class table_object:
         del objects[self.name]  #Disable in objects dictionary
         list_items_on_table()   #Print updated table items
 
+    def check_if_used(self):   #Checks weather or not the item is enabled
+        return self.use == True
+
+
+
+
 
 #These are the objects that can be enabled:
 cutlery = table_object("Cutlery", 0, False)
@@ -108,6 +110,10 @@ salt = table_object("Salt", 0, False)
 pepper = table_object("Pepper", 0, False)
 bible = table_object("Bible", 0, False)
 olive_oil = table_object("Olive Oil", 0, False)
+
+
+
+
 
 while True:
     action = str(input("Enter action: "))   #Ask what the user wants to do
@@ -122,54 +128,28 @@ while True:
             if str(obj) == goto:
                 identifier.goto(modifier)   #Turn table to the table object
                 valid_answer_found = True
-        if valid_answer_found == False: #If the item asked for didn't exist
-            invalid_answer(goto, "wasn't on the table. The table did nothing.")
+        assert valid_answer_found == True, "You can't go to that item right now."
 
 
-    elif action == "Remove":    #If the user wants to disable an item:
-        remove = input("Item to remove? ")  #Ask for an item
-        found_item = False  #The user hasn't yet provided a valid answer yet
-        for obj, identifier in objects.items(): #Repeat w all objects on table
-            #If the item the user entered matches a table object
-            if str(obj) == remove:
-                remove = identifier #Set remove to the object to remove
-                found_item = True
-        if found_item == True:
-            remove.unused() #Disable the item
-        else:
-            invalid_answer(remove, "wasn't on the table.")
-            list_items_on_table()   #Show updated list
-    
+    elif action == "Edit":  #If the user wants to change the items on the table
+        edit = input("Item to Toggle? ")   #Ask for item
 
-    elif action == "Add":   #If the user wants to enable an item
-        add = input("Item to add? ")    #Ask for an item
-        
-        found_item = False  #The user hasn't yet provided a valid answer yet
-        for obj, identifier in all_objects.items(): #Repeat w all objects on table
-            #If the item the user entered matches a table object
-            if str(obj) == add:
-                correct_identifier = identifier #Set to the object to remove
-                found_item = True
+        #Check the existance of the item (it's presence in all_objects)
+        item_exists = False #Haven't found the item yet
+        for obj, identifier in all_objects.items(): #Repeat with all items
+            if str(obj) == edit:    #If item in all_objects matches user input
+                edit_identifier = identifier    #Store the ID of the object
+                item_exists = True  #The item the user asked for exists
+        assert item_exists == True, "The item you asked for dosen't exist."
 
-        #This code figures out weather or not the item ia already on the table
-        item_on_table = False
-        for obj, identifier in objects.items():
-            if str(obj) == add:
-                item_on_table = True
- 
-        if found_item == False: #If the item dosen't exist       
-            invalid_answer(add, "dosen't exist.")   #Error
-            list_items_on_table()
-        elif item_on_table == True: #If the item is on the table
-            invalid_answer(add, "is already on the table.") #Error
-            list_items_on_table()
-        else:   #If the item is valid
-            correct_identifier.used()   #Enable the item
-
+        #Toggle the item the user entered
+        if edit_identifier.check_if_used() == True:   #If the item is enabled
+            edit_identifier.unused()    #Disable the item
+        else:   #If the item is disabled
+            edit_identifier.used()  #Enable the item
 
     else:   #If the action provided isn't valid
-        invalid_answer(action, "isn't a valid action.")
-
+        assert False, "The action you entered wasn't valid"
 
 
 

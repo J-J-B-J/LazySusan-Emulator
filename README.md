@@ -1,5 +1,5 @@
 # Lazy-Susan
-An emulator of a motorised lasy susan
+An emulator of a motorised lazy Susan
 
 This program is a text-based emulator of a motorised lazy Susan. Since I am yet to make a functioning lazy Susan, in the meantime I have made this program. It asks who is requesting the item, then what item they want, then reports back what the table is doing.
 
@@ -19,3 +19,8 @@ This program is a text-based emulator of a motorised lazy Susan. Since I am yet 
 - All old delay functions changed to Python Standard time.sleep
 - More comments added
 - All lines longer than 79 characters shortened
+
+### UPDATE: V1.5
+- Add and Remove functions combined into one action
+- Tests and assertions added
+- Code for get_modifier function turned into dictionary
