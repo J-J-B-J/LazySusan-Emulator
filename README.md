@@ -3,10 +3,10 @@ A motorised lazy Susan Emulator and Driver
 
 This repository is based on the AIY Voice Kit. (https://aiyprojects.withgoogle.com/voice/) Based on Raspberry Pi, this kit helps with voice recognition. The goal of this repo is to make a motorised lazy Susan that you can use voice commands to control.
 
-## This repository contains 2 branches:
-The first branch contains a program that is a text-based emulator of a motorised lazy Susan. Since I am yet to make a functioning lazy Susan, in the meantime I have made this program. It asks who is requesting the item, then what item they want, then reports back what the table is doing.
+## This repository contains 2 files:
+The first file is a program that is a text-based emulator of a motorised lazy Susan. Since I am yet to make a functioning lazy Susan, in the meantime I have made this program. It asks who is requesting the item, then what item they want, then reports back what the table is doing.
 
-The second branch contains a program that is to be used with a voice kit. WARNING: This program is currently untested. I do not currently own a Voice Kit or have a functioning lazy Susan.
+The second file is a program that is to be used with a voice kit. WARNING: This program is currently untested. I do not currently own a Voice Kit or have a functioning lazy Susan.
 ### PLEASE DO NOT USE THE SECOND PROGRAM
 It has never been tested. The second program will be tested and used once I acquire a Voice Kit and find a way to move the lazy Susan with electronics
 

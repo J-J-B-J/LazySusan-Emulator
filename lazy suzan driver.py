@@ -1,8 +1,17 @@
-import time #The time library is used to wait in between long chunks of text
+#The time library is used to wait in between long chunks of text
+from time import sleep
+
+#Libraries by AIY that allow speech-to-text,
+#LED control, text-to-speech and GPIO pin control
+from aiy.cloudspeech import CloudSpeechClient
+import aiy.leds
+import aiy.voice.tts
+from gpiozero import Motor
 
 current_position = 0    #Set the # of degrees the table has turned = 0
 
-modifiers = {   #This dictionary keeps track of people and their positions around the table
+#This dictionary keeps track of people and their positions around the table
+modifiers = {
     "A": 0,
     "B": 90,
     "C": 180,
@@ -18,27 +27,36 @@ objects = {}    #Contains the objects and their identifiers that are on the tabl
 all_objects = {}    #Contains all the objects and their identifiers.
 
 
+def say(text):  #This function gets the speaker to say what is entered
+    aiy.voice.tts.say(text, lang='en-AU', volume=60, pitch=130, speed=100,
+                      device='default')
+
+def getInput(prompt, hints):    #This function gets a spoken user input
+    say(prompt) #Speak the prompt
+    return CloudSpeechClient().recognize(language_code=en_AU,
+                                         hint_phrases=hints)    #Get the input
+
 #This function prints out all the objects in turn
 #It's used when a change to the objects dictionary occurs
-def list_items_on_table():  
-    print("\nItems on table:        *UPDATED*")  #Say what is printed below
+def list_items_on_table():
+    say("Updated items on table.")  #Say what is said below
     for obj, identifier in objects.items(): #For each obj & id in objects
-        print(" - " + obj)  #Print name of object in bullet point format
-    print("\n") #Print new line at the end
+        say(obj + ".")  #Print name of object in bullet point format
 
 def print_current_position(): #This function prints table's current position
-    print("The table is now in position " + str(current_position) + ".")
+    say("Table position " + str(current_position) + ".")
 print_current_position()    #Run the above function upon program run
 
 def get_modifier(): #This function returns the modifier for the specified user
     global modifier
     modifier = "X"  #So that if the input isn't existing, the program will know
     person = "" #Create the variable person outside of the while loop scope
-    person = str(input("Who is this? "))    #Set person to user input
+    person = getInput("What seat?", modifiers.keys())    #Set person to user input
     for p, m in modifiers.items():
         if person == p:
             modifier = m
-    assert modifier != "X", "The person you entered does not exist"
+    if modifier == "X":
+        say("That seat does not exist.")
     return modifier #Return the modifier once the user has given a valid answer
 
 
@@ -60,7 +78,7 @@ class table_object:
     #Goto turns table so that the chosen item is facing the chosen person
     def goto(self, modifier):
         global current_position #So that goto can change that table's position
-        print("Going to " + self.name + ".")    #Say where the table should go
+        say("Going to " + self.name + ".")    #Say where the table should go
         time.sleep(1)
 
         turn = (self.position + modifier) - current_position    #Calculate turn
@@ -73,21 +91,17 @@ class table_object:
             
         if(turn < 0):
             #Print the turn as anticlockwise
-            print("The table turned " + str(turn*-1) + " anticlockwise.")
+            say("The table turned " + str(turn*-1) + " anticlockwise.")
         if(turn > 0):
             #Print the turn as clockwise
-            print("The table turned " + str(turn) + " clockwise.")
+            say("The table turned " + str(turn) + " clockwise.")
         if(turn == 0):  #i.e. table is already in correct position
-            print("The table did not move.")    #Print the turn as nothing
-        time.sleep(1)
+            say("The table did not move.")    #Print the turn as nothing
         print_current_position()    #Show the table's updated position
-        time.sleep(1)
 
     def used(self): #This function enables the item
         self.use = True #Enable in object
         objects[self.name] = self   #Enable in objects dictionary
-        self.position = current_position #Set new position of item
-        print("Position set.")
         list_items_on_table()   #Print updated table items
         
     def unused(self):   #This function disables the item
@@ -118,44 +132,25 @@ olive_oil = table_object("Olive Oil", 0, False)
 
 
 while True:
-    action = str(input("Enter action: "))   #Ask what the user wants to do
-
+    board.button.wait_for_press()
+    action = getInput("Enter action: ", ("Goto", "Edit"))   #Ask what the user wants to do
 
     
     if action == "Goto":    #If the user wants to turn the table:
         miodifier = get_modifier()  #Get the modifier for a specific person
-        goto = input("Where to? ")  #Ask what item the person wants
+        goto = getInput("Where to? ", objects.keys())  #Ask what item the person wants
         valid_answer_found = False  #The user hasn't yet provided valid answer
         for obj, identifier in objects.items(): #Repeat w all objects on table
             #If the item the user entered matches a table object
             if str(obj) == goto:
                 identifier.goto(modifier)   #Turn table to the table object
                 valid_answer_found = True
-        assert valid_answer_found == True, "You can't go to that item right now."
+        if valid_answer_found == False:
+            say("You can't go to that item now.")   #Give an error
 
 
-
-    elif action == "Toggle":  #If the user wants to change the items on the table
-        toggle = input("Item to Toggle? ")   #Ask for item
-
-        #Check the existance of the item (it's presence in all_objects)
-        item_exists = False #Haven't found the item yet
-        for obj, identifier in all_objects.items(): #Repeat with all items
-            if str(obj) == toggle:    #If item in all_objects matches user input
-                toggle_identifier = identifier    #Store the ID of the object
-                item_exists = True  #The item the user asked for exists
-        assert item_exists == True, "The item you asked for dosen't exist."
-
-        #Toggle the item the user entered
-        if toggle_identifier.check_if_used() == True:   #If the item is enabled
-            toggle_identifier.unused()    #Disable the item
-        else:   #If the item is disabled
-            toggle_identifier.used()  #Enable the item
-
-
-
-    elif action == "Edit":  #Edit the position of an item
-        edit = input("Item to Edit? ")   #Ask for item
+    elif action == "Edit":  #If the user wants to change the items on the table
+        edit = getInput("Item to Toggle? ", all_objects.keys())   #Ask for item
 
         #Check the existance of the item (it's presence in all_objects)
         item_exists = False #Haven't found the item yet
@@ -163,42 +158,17 @@ while True:
             if str(obj) == edit:    #If item in all_objects matches user input
                 edit_identifier = identifier    #Store the ID of the object
                 item_exists = True  #The item the user asked for exists
-        assert item_exists == True, "The item you asked for dosen't exist."
+        if item_exists == False:
+            say("The item you asked for dosen't exist.")
 
+        #Toggle the item the user entered
         if edit_identifier.check_if_used() == True:   #If the item is enabled
-            #Set the item's position to the current position
-            edit_identifier.position = current_position
+            edit_identifier.unused()    #Disable the item
         else:   #If the item is disabled
             edit_identifier.used()  #Enable the item
-        print("Position set.")
-
-
-
-    #Turn the table manually, relative to seat with modifier 0
-    elif action == "Turn":
-        turn = int(input("By how much? "))
-
-        current_position = (current_position + turn) % 360  #Update pos var
-
-        #The following converts turns greater than 180 into negative numbers
-        #E.g. 260 turn becomes -100 turn
-        if(turn > 180):
-            turn = (360 - turn) * -1
-            
-        if(turn < 0):
-            #Print the turn as anticlockwise
-            print("The table turned " + str(turn*-1) + " anticlockwise.")
-        if(turn > 0):
-            #Print the turn as clockwise
-            print("The table turned " + str(turn) + " clockwise.")
-        if(turn == 0):  #i.e. table is already in correct position
-            print("The table did not move.")    #Print the turn as nothing
-        print_current_position()    #Show the table's updated position
-
-        
 
     else:   #If the action provided isn't valid
-        assert False, "The action you entered wasn't valid"
+        say("The action you entered wasn't valid")
 
 
 
