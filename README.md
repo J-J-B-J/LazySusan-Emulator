@@ -10,26 +10,38 @@ The second file is a program that is to be used with a voice kit. WARNING: This 
 ### PLEASE DO NOT USE THE SECOND PROGRAM
 It has never been tested. The second program will be tested and used once I acquire a Voice Kit and find a way to move the lazy Susan with electronics
 
-## UPDATES
+# UPDATES
 
+---
 ### UPDATE: V1.1
 - Issue resolved: When the table should only turn anticlockwise, it turns clockwise and anticlockwise
-
+---
 ### UPDATE: V1.2
 - You can now "Enable" or "Disable" table objects if you take them off your lazy Susan
-
+---
 ### UPDATE: V1.3
 - The code for getting the modifier for each person is now a function
 - The program checks for validity whenever it asks for user input
 - Prints an appropriate error message upon invalid user input
 - Prints the items that are on the table whenever there is a change to them
-
+---
 ### UPDATE: V1.4
 - All old delay functions changed to Python Standard time.sleep
 - More comments added
 - All lines longer than 79 characters shortened
-
+---
 ### UPDATE: V1.5
 - Add and Remove functions combined into one action
 - Tests and assertions added
 - Code for get_modifier function turned into dictionary
+---
+### UPDATE V1.6
+- Ability to turn the table manually using "Turn" action
+- Achieved PEP 8 compliance
+- "Edit" command renamed "Toggle"
+- Change position of an item during the run using the new "Edit" action
+- When you enable an item, the program will automatically run the "Edit" command.
+---
+### COMING SOON
+- New lazy susan class
+- Custom items able to be placed on table
