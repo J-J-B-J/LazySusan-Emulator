@@ -42,6 +42,14 @@ It has never been tested. The second program will be tested and used once I acqu
 - Change position of an item during the run using the new "Edit" action
 - When you enable an item, the program will automatically run the "Edit" command.
 ---
-### COMING SOON
+### UPDATE V1.7
 - New lazy susan class
+- "Cancel" command exits the action you're running
+- PEP 8 compliance maintained
+- More comments added to tests
+---
+### COMING SOON
 - Custom items able to be placed on table
+- People's names
+- Try-Except-Else blocks
+- Settings kept in .json file
