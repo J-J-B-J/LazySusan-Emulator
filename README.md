@@ -10,6 +10,45 @@ The second file is a program that is to be used with a voice kit. WARNING: This 
 ### PLEASE DO NOT USE THE SECOND PROGRAM
 It has never been tested. The second program will be tested and used once I acquire a Voice Kit and find a way to move the lazy Susan with electronics
 
+# Instructions
+### Start
+When first started, the program will prompt you with "Action: ".
+There are four actions you can perform:
+- "Turn"
+- "Toggle"
+- "Goto"
+- "Edit"
+
+### Turn
+The turn function is the most basic. Enter an integer, (positive or negative,) and the emulated lazy susan will turn that much. Note that is you enter a turn greater than 359 or less than -359, the program will continue adding or subtracting until the turn is within the above range. E.g. You enter "370", the table turns 10.
+
+### Toggle
+Toggle either enables or disables an item. Currently, you must use one of the default items;"
+- "Cutlery"
+- "Tomato sauce"
+- "BBQ sauce"
+- "Sweet Chilli Sauce"
+- "Salad"
+- "Salt"
+- "Pepper"
+- "Bible"
+- "Olive oil"
+
+In real life, enable is the equivalent of putting an item on the lazy susan, and disable is the equivalent of taking an item off.
+
+When you have toggled an item, the program will print an updated list of items on the table.
+
+### Goto
+When an item is enabled, you can run goto for the susan to bring it to you.
+
+The program will ask for a modifier. This is the amount of degrees clockwise position 0 is from you. For example, if position 0 is directly to your right, your modifier is 90.
+
+After entering your modifier, enter the item you want brought to you.
+## Behold the super-lazy susan :D
+
+### Edit
+The edit action sets the position of an item to wherever the table is now. I.e. put the item in position 0, then it's current position on the susan will be calculated and saved.
+
 # UPDATES
 
 ---
