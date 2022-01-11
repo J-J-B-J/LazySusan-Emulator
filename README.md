@@ -1,17 +1,8 @@
-# Lazy-Susan Emulator and Driver
-A motorised lazy Susan Emulator and Driver
+# Lazy-Susan Emulator
 
-This repository is based on the AIY Voice Kit. (https://aiyprojects.withgoogle.com/voice/) Based on Raspberry Pi, this kit helps with voice recognition. The goal of this repo is to make a motorised lazy Susan that you can use voice commands to control.
-
-## This repository contains 2 files:
-The first file is a program that is a text-based emulator of a motorised lazy Susan. Since I am yet to make a functioning lazy Susan, in the meantime I have made this program. It asks who is requesting the item, then what item they want, then reports back what the table is doing.
-
-The second file is a program that is to be used with a voice kit. WARNING: This program is currently untested. I do not currently own a Voice Kit or have a functioning lazy Susan.
-### PLEASE DO NOT USE THE SECOND PROGRAM
-It has never been tested. The second program will be tested and used once I acquire a Voice Kit and find a way to move the lazy Susan with electronics
+This program is a text-based emulator of a motorised lazy Susan. Since I am yet to make a functioning lazy Susan, in the meantime I have made this program. It asks who is requesting the item, then what item they want, then reports back what the table is doing.
 
 # Instructions
-### Start
 When first started, the program will prompt you with "Action: ".
 There are four actions you can perform:
 - "Turn"
@@ -23,16 +14,7 @@ There are four actions you can perform:
 The turn function is the most basic. Enter an integer, (positive or negative,) and the emulated lazy susan will turn that much. Note that is you enter a turn greater than 359 or less than -359, the program will continue adding or subtracting until the turn is within the above range. E.g. You enter "370", the table turns 10.
 
 ### Toggle
-Toggle either enables or disables an item. Currently, you must use one of the default items;"
-- "Cutlery"
-- "Tomato sauce"
-- "BBQ sauce"
-- "Sweet Chilli Sauce"
-- "Salad"
-- "Salt"
-- "Pepper"
-- "Bible"
-- "Olive oil"
+Toggle either enables or disables an item. While using toggle, enter an item. If the item is already enabled, the program will disable it. If there is no enabled item called this, the program will make and enable a new one. You can only have 10 items on the table at once.
 
 In real life, enable is the equivalent of putting an item on the lazy susan, and disable is the equivalent of taking an item off.
 
@@ -43,8 +25,7 @@ When an item is enabled, you can run goto for the susan to bring it to you.
 
 The program will ask for a modifier. This is the amount of degrees clockwise position 0 is from you. For example, if position 0 is directly to your right, your modifier is 90.
 
-After entering your modifier, enter the item you want brought to you.
-## Behold the super-lazy susan :D
+After entering your modifier, enter the item you want brought to you. The program will report what is happening.
 
 ### Edit
 The edit action sets the position of an item to wherever the table is now. I.e. put the item in position 0, then it's current position on the susan will be calculated and saved.
@@ -87,8 +68,11 @@ The edit action sets the position of an item to wherever the table is now. I.e. 
 - PEP 8 compliance maintained
 - More comments added to tests
 ---
-### COMING SOON
-- Custom items able to be placed on table
-- People's names
+### UPDATE V1.8
+- Custom items able to be placed on table, no extra work or info required
 - Try-Except-Else blocks
+- Driver program deleted
+- PEP 8 compliance maintained
+### COMING SOON
+- People's names
 - Settings kept in .json file

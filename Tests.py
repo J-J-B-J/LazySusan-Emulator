@@ -44,11 +44,15 @@ class TestEmulator(unittest.TestCase):
         tgio_susan.goto()
         self.assertIn("You can't go to that item or modifier now.", tests)
 
-    def test_toggle_invalid_object(self):
-        ttio_susan = emulator.LazySusan()
-        emulator.raw_input = lambda _: 'XXXX'
-        ttio_susan.toggle()
-        self.assertIn("The item you asked for doesn't exist.", tests)
+    def test_toggle_too_many_items(self):
+        tttmi_susan = emulator.LazySusan()
+        items_to_toggle = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+                           "K"]
+        for letter in items_to_toggle:
+            emulator.raw_input = lambda _: letter
+            tttmi_susan.toggle()
+        self.assertIn("Sorry, but you can only have 10 items on the table.",
+                      tests)
 
     def test_edit_invalid_object(self):
         teio_susan = emulator.LazySusan()

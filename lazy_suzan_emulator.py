@@ -1,11 +1,12 @@
 raw_input = ""
 
 
-def get_input(prompt = "Cancel"):  # This enables the input of text from a
+def get_input(prompt="Cancel"):  # This enables the input of text from a
     # test file
-    if __name__ == '__main__':
+    if __name__ == '__main__':  # If this is the main program, just run the
+        # normal input function
         return_value = str(input(prompt))
-    else:
+    else:   # If in testing mode, return the input from the test program
         return_value = str(raw_input)
     if "Cancel" in return_value:
         return None
@@ -39,7 +40,7 @@ class TableObject:
 
         turn = (int(self.position) + int(
             mod)) - self.parent_susan.current_position  # Calculate turn
-        if "-" in str(turn):
+        if "-" in str(turn):    # Deal with negative turns
             turn_is_negative = True
             new_turn = ""
             for character in str(turn):
@@ -58,6 +59,8 @@ class TableObject:
                                                      current_position + int(
                                                         turn))  # Update
             # position var
+
+        # Deal with turns > 360˚ and < -360˚
         while self.parent_susan.current_position >= 360:
             self.parent_susan.current_position = \
                 self.parent_susan.current_position - 360
@@ -127,14 +130,7 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
         if turn is None:
             print("Cancelled")
             return
-        valid_turn = True
-        valid_characters = (
-            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "-")
-        for character in str(turn):
-            if character not in valid_characters:
-                valid_turn = False
-
-        if valid_turn:
+        try:
             if "-" in str(turn):
                 turn_is_negative = True
                 new_turn = ""
@@ -169,7 +165,7 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
                 print("The table turned " + str(turn) + " clockwise.")
 
             self.print_current_position()  # Show the table's updated position
-        else:
+        except ValueError:
             print("The turn you entered wasn't an integer")
 
     def goto(self):
@@ -199,22 +195,28 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
         if toggle is None:
             print("Cancelled")
             return
-        # Check the existence of the item (it's presence in all_objects)
+        # Check if the item is enabled
         toggle_item_exists = False  # Haven't found the item yet
         toggle_identifier = ""
-        for obj, identifier in self.all_objects.items():  # Repeat with all
+        for obj, identifier in self.objects.items():  # Repeat with all enabled
             # items
             if str(obj) == toggle:  # If item in all_objects matches user input
                 toggle_identifier = identifier  # Store the ID of the object
                 toggle_item_exists = True  # The item the user asked for exists
-        if not toggle_item_exists:
-            print("The item you asked for doesn't exist.")
+        if toggle_item_exists:
+            toggle_identifier.unused()
         else:
-            # Toggle the item the user entered
-            if toggle_identifier.is_used():  # If the item is enabled
-                toggle_identifier.unused()  # Disable the item
-            else:  # If the item is disabled
-                toggle_identifier.used()  # Enable the item
+            found_usable_object = False
+            usable_object = ""
+            for obj in self.all_objects.values():
+                if not obj.is_used():
+                    found_usable_object = True
+                    usable_object = obj
+            if found_usable_object:
+                usable_object.used()
+                usable_object.name = toggle
+            else:
+                print("Sorry, but you can only have 10 items on the table.")
 
     def edit(self):
         edit = get_input("Item to Edit? ")
@@ -229,29 +231,30 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
             if str(obj) == edit:  # If item in all_objects matches user input
                 edit_identifier = identifier  # Store the ID of the object
                 edit_item_exists = True  # The item the user asked for exists
-        if not edit_item_exists:
-            print("The item you asked for doesn't exist.")
-        else:
+        if edit_item_exists:
             if edit_identifier.is_used():  # If the item is enabled
                 # Set the item's position to the current position
                 edit_identifier.position = self.current_position
             else:  # If the item is disabled
                 edit_identifier.used()  # Enable the item
+        else:
+            print("The item you asked for doesn't exist.")
 
 
 def main():
     default_susan = LazySusan()
     default_susan.print_current_position()
     # These are the objects that can be enabled:
-    cutlery = TableObject("Cutlery", default_susan)
-    tom_sauce = TableObject("Tomato Sauce", default_susan)
-    bbq_sauce = TableObject("BBQ Sauce", default_susan)
-    chilli_sauce = TableObject("Sweet Chilli Sauce", default_susan)
-    salad = TableObject("Salad", default_susan)
-    salt = TableObject("Salt", default_susan)
-    pepper = TableObject("Pepper", default_susan)
-    bible = TableObject("Bible", default_susan)
-    olive_oil = TableObject("Olive Oil", default_susan)
+    TableObject("Cutlery", default_susan)
+    TableObject("Tomato Sauce", default_susan)
+    TableObject("BBQ Sauce", default_susan)
+    TableObject("Sweet Chilli Sauce", default_susan)
+    TableObject("Salad", default_susan)
+    TableObject("Salt", default_susan)
+    TableObject("Pepper", default_susan)
+    TableObject("Bible", default_susan)
+    TableObject("Olive Oil", default_susan)
+    TableObject("Desert", default_susan)
 
     while True:
         # Ask what the user wants to do
