@@ -5,11 +5,15 @@ This program is a text-based emulator of a motorised lazy Susan. Since I am yet 
 # Instructions
 If you have items saved from last time, the program will first ask you if you want to restore them.
 
-After this, the program will prompt you with "Action: ". There are four actions you can perform:
+Please note that the program automatically interprets all user input in title case.
+
+After this, the program will prompt you with "Action: ". There are six actions you can perform:
 - "Turn"
 - "Toggle"
 - "Goto"
 - "Edit"
+- "Users"
+- "Clear"
 
 ### Turn
 The turn function is the most basic. Enter an integer, (positive or negative,) and the emulated lazy susan will turn that much. Note that is you enter a turn greater than 359 or less than -359, the program will continue adding or subtracting until the turn is within the above range. E.g. You enter "370", the table turns 10.
@@ -24,12 +28,16 @@ When you have toggled an item, the program will print an updated list of items o
 ### Goto
 When an item is enabled, you can run goto for the susan to bring it to you.
 
-The program will ask for a modifier. This is the amount of degrees clockwise position 0 is from you. For example, if position 0 is directly to your right, your modifier is 90.
-
-After entering your modifier, enter the item you want brought to you. The program will report what is happening.
+After entering your name, enter the item you want brought to you. The program will report what is happening.
 
 ### Edit
-The edit action sets the position of an item to wherever the table is now. I.e. put the item in position 0, then it's current position on the susan will be calculated and saved.
+The Edit action sets the position of an item to wherever the table is now. I.e. put the item in position 0, then it's current position on the susan will be calculated and saved.
+
+### Users
+Run the Users function to toggle users, i.e. make and delete users. This is the equivalent of toggle, but for people instead of items.
+
+### Clear
+This function simply clears all items from the table.
 
 # UPDATES
 
@@ -61,13 +69,13 @@ The edit action sets the position of an item to wherever the table is now. I.e. 
 - Achieved PEP 8 compliance
 - "Edit" command renamed "Toggle"
 - Change position of an item during the run using the new "Edit" action
-- When you enable an item, the program will automatically run the "Edit" command.
+- When you enable an item, the program will automatically run the "Edit" command
 ---
 ### UPDATE V1.7
 - New lazy susan class
 - "Cancel" command exits the action you're running
-- PEP 8 compliance maintained
 - More comments added to tests
+- PEP 8 compliance maintained
 ---
 ### UPDATE V1.8
 - Custom items able to be placed on table, no extra work or info required
@@ -78,11 +86,16 @@ The edit action sets the position of an item to wherever the table is now. I.e. 
 ### UPDATE V1.9
 - Keeps items in a .txt file, when the program quits, items are saved.
 - Infinite number of items! (Or at least however many your computer can store before crashing)
+- - PEP 8 compliance maintained
+---
+### UPDATE V2.0
+- People's names
+- Clear action clears all items from the table
+- Automatically interprets all text in title case
+- PEP 8 compliance maintained
 ---
 ### COMING SOON
-- People's names
 - Compound actions
-- Clear action
 - Clock notation
 - Bulk toggle
 - Item presets

@@ -1,9 +1,16 @@
 items_file = 'items.txt'
+users_file = 'users.txt'
 
 raw_input = ""
 
 
-def read_items(susan):
+def clear_items():
+    with open(items_file, 'w') as File:
+        File.write("Items:\n")
+    print("Items Cleared!")
+
+
+def recover_items(susan):
     try:
         with open(items_file, 'r') as file:  # Try to read the file
             read_data = file.readlines()
@@ -31,11 +38,9 @@ def read_items(susan):
                                 )
         if restore == "Yes":
             print("Item data saved!")
-            lines = 0
             for line in read_data:  # Save the old data to this program
                 TableObject(str(line[4:]), susan, int(line[:3]),
                             True)
-                lines += 1
             return
         else:
             with open(items_file, 'w') as file:  # Clear the file
@@ -59,6 +64,88 @@ def add_item(item, position):
             file.write("Items:\n" + text)
 
 
+def remove_item(item):
+    newlines = ""
+    try:
+        with open(items_file, 'r') as file:
+            old_lines = file.readlines()
+    except FileNotFoundError:
+        with open(items_file, 'w') as file:
+            file.write("Items:\n")
+        print("File Not Found.")
+        return
+    for line in old_lines[1:]:
+        if item not in line:
+            newlines += line
+            newlines += "\n"
+    with open(items_file, 'w') as file:
+        file.write("Items:\n")
+    with open(items_file, 'a') as file:
+        file.write(newlines)
+
+
+def get_users():
+    try:
+        with open(users_file, 'r') as file:  # Try to read the file
+            read_data = file.readlines()
+    except FileNotFoundError:  # If the file doesn't exist
+        with open(users_file, 'w') as file:  # Create the file
+            file.write("Users:\n")
+            # Write this line at the start
+        with open(items_file, 'r') as file:
+            read_data = file.readlines()
+    read_data = read_data[1:]  # Remove first line of file, which is "Users:"
+    if not read_data:
+        return {}
+    else:
+        new_read_data = []  # New read data gets set to the old read data, but
+        # without the newlines at the end of each line.
+        for line in read_data:
+            new_read_data.append(line.rstrip("\n"))
+        read_data = new_read_data
+
+        users = {}
+        for line in read_data:  # Save the old data to this program
+            users[line[4:]] = line[:3]
+        return users
+
+
+def edit_users():
+    user = get_input("User: ")
+    try:
+        with open(users_file, 'r') as file:  # Try to read the file
+            read_data = file.readlines()
+    except FileNotFoundError:  # If the file doesn't exist
+        with open(users_file, 'w') as file:  # Create the file
+            file.write("Users:\n")
+            # Write this line at the start
+        with open(users_file, 'r') as file:
+            read_data = file.readlines()
+    new_read_data = []
+    for line in read_data:
+        if user not in line:
+            new_read_data.append(line)
+    if new_read_data == read_data:  # If user is not in users file, create them
+        modifier = get_input("Modifier: ")
+        for _ in range(0, 3 - len(modifier)):
+            modifier = "0" + str(modifier)  # Make positions 3-digit numbers.
+            # E.g. 12 becomes 012
+        modifier += " "  # Add a space at the end of modifier
+        text = modifier + user + "\n"
+        with open(users_file, 'a') as file:
+            file.write(text)
+        print("User added!")
+    else:  # If user is in users file, remove them
+        # Convert read_data to string
+        read_data = new_read_data
+        new_read_data = ""
+        for line in read_data:
+            new_read_data += (line + "\n")
+        with open(items_file, 'w') as file:
+            file.write(new_read_data)
+        print("User Deleted!")
+
+
 def get_input(prompt="Cancel"):  # This enables the input of text from a
     # test file
     if __name__ == '__main__':  # If this is the main program, just run the
@@ -68,16 +155,20 @@ def get_input(prompt="Cancel"):  # This enables the input of text from a
         return_value = str(raw_input)
     if "Cancel" in return_value:
         return None
-    return return_value
+    return return_value.title()
 
 
 def get_modifier():  # This function returns the modifier for the specified
     # user
-    modifier = get_input("Modifier? ")
-    if modifier is None:
+    user = get_input("User? ")
+    if user is None:
         return None
-    return modifier  # Return the modifier once the user has given a valid
-    # answer
+    try:
+        users = get_users()
+        return users[user]  # Return the modifier once the user has
+        # given a valid answer
+    except KeyError:
+        print("That is not a valid user.")
 
 
 # This class is for real-world objects that can be placed on the lazy susan
@@ -118,7 +209,7 @@ class TableObject:
         else:
             self.parent_susan.current_position = int(self.parent_susan.
                                                      current_position + int(
-                                                        turn))  # Update
+                                                      turn))  # Update
             # position var
 
         # Deal with turns > 360˚ and < -360˚
@@ -161,6 +252,7 @@ class TableObject:
         del self.parent_susan.objects[self.name]  # Disable in objects
         # dictionary
         self.parent_susan.list_items()  # Print updated table items
+        remove_item(self.name)
 
     def is_used(self):  # Checks weather or not the item is enabled
         if self.use:
@@ -301,7 +393,7 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
 def main():
     default_susan = LazySusan()
     default_susan.print_current_position()
-    read_items(default_susan)
+    recover_items(default_susan)
     default_susan.list_items()
 
     while True:
@@ -318,9 +410,17 @@ def main():
         elif action == "Edit":  # Edit the position of an item
             default_susan.edit()
 
-        # Turn the table manually, relative to seat with modifier 0
+        # Turn the table manually
         elif action == "Turn":
             default_susan.turn()
+
+        # Edit the users list
+        elif action == "Users":
+            edit_users()
+
+        # Clear the items list
+        elif action == "Clear":
+            clear_items()
 
         else:  # If the action provided isn't valid
             print("The action you entered wasn't valid")

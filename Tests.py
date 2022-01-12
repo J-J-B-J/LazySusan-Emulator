@@ -13,7 +13,7 @@ tests = []
 # (1)  def test_goto_invalid_modifier(self):
 # (2)      tgim_susan = emulator.LazySusan()
 # (3)      sauce = emulator.TableObject("Sauce", tgim_susan)
-# (4)      emulator.raw_input = lambda _: 'XXXX'
+# (4)      emulator.raw_input = 'XXXX'
 # (5)      tgim_susan.goto()
 # (6)      self.assertIn("You can't go to that item or modifier now.", tests)
 
@@ -25,6 +25,10 @@ tests = []
 # At 5, the function that is being tested is run.
 # At 6, assertions are made to check that the output was expected.
 
+rewrite = ""
+while rewrite != "OK":
+    rewrite = input("Are you OK to erase items and users? Enter OK: ")
+
 
 class TestEmulator(unittest.TestCase):
     def setUp(self) -> None:
@@ -33,29 +37,32 @@ class TestEmulator(unittest.TestCase):
         # printed output from emulator to the tests list
         with open('items.txt', 'w') as File:
             File.write("Items:\n")
+        with open('users.txt', 'w') as File:
+            File.write("Users:\n")
 
     def test_goto_invalid_modifier(self):
         tgim_susan = emulator.LazySusan()
-        emulator.raw_input = lambda _: 'XXXX'
+        emulator.raw_input = 'XXXX'
         tgim_susan.goto()
-        self.assertIn("You can't go to that item or modifier now.", tests)
+        self.assertIn("That is not a valid user.", tests)
 
     def test_goto_invalid_object(self):
+        with open('users.txt', 'a') as File:
+            File.write("000 A")
         tgio_susan = emulator.LazySusan()
-        emulator.raw_input = lambda _: 0
+        emulator.raw_input = "A"
         tgio_susan.goto()
         self.assertIn("You can't go to that item or modifier now.", tests)
 
-
     def test_turn_float(self):
         ttf_susan = emulator.LazySusan()
-        emulator.raw_input = lambda _: float(2.5)
+        emulator.raw_input = float(2.5)
         ttf_susan.turn()
         self.assertIn("The turn you entered wasn't an integer", tests)
 
     def test_turn_string(self):
         tts_susan = emulator.LazySusan()
-        emulator.raw_input = lambda _: "This is a string, not an int"
+        emulator.raw_input = "This is a string, not an int"
         tts_susan.turn()
         self.assertIn("The turn you entered wasn't an integer", tests)
 
@@ -91,6 +98,7 @@ class TestEmulator(unittest.TestCase):
         self.assertEqual(90, ttm3_susan.current_position)
 
     def test_turn_more_negative_360(self):
+        # noinspection SpellCheckingInspection
         ttmn3_susan = emulator.LazySusan()
         emulator.raw_input = int(-450)
         ttmn3_susan.turn()
@@ -104,6 +112,8 @@ class TestEmulator(unittest.TestCase):
         self.assertEqual(True, sauce.is_used())
         self.assertIn("Sauce", te_susan.objects)
         self.assertEqual(180, sauce.position)
+        with open('items.txt', 'r') as file:
+            self.assertIn("Sauce", file.read())
 
     def test_disable(self):
         td_susan = emulator.LazySusan()
@@ -112,6 +122,8 @@ class TestEmulator(unittest.TestCase):
         td_susan.toggle()
         self.assertEqual(False, sauce.use)
         self.assertNotIn("Sauce", td_susan.objects)
+        with open('items.txt', 'r') as file:
+            self.assertNotIn("Sauce", file.read())
 
     def test_edit(self):
         ted_susan = emulator.LazySusan(starting_position=180)
@@ -125,6 +137,7 @@ class TestEmulator(unittest.TestCase):
         self.assertEqual(0, ted_susan.current_position)
 
     def test_edit_when_disabled(self):
+        # noinspection SpellCheckingInspection
         tewd_susan = emulator.LazySusan()
         sauce = emulator.TableObject("Sauce", tewd_susan)
         tewd_susan.current_position = 180
@@ -141,6 +154,8 @@ class TestEmulator(unittest.TestCase):
     def test_goto_item(self):
         tgi_susan = emulator.LazySusan()
         tgi_susan.current_position = 180
+        with open('users.txt', 'a') as File:
+            File.write("000 0")
         emulator.raw_input = "0"
         test = tgi_susan.toggle()
         tgi_susan.current_position = 0
@@ -151,8 +166,11 @@ class TestEmulator(unittest.TestCase):
         self.assertIn("The table is now in position 180.", tests)
 
     def test_goto_item_with_modifier(self):
+        # noinspection SpellCheckingInspection
         tgiwm_susan = emulator.LazySusan()
         tgiwm_susan.current_position = 180
+        with open('users.txt', 'a') as File:
+            File.write("090 90")
         emulator.raw_input = "90"
         test = tgiwm_susan.toggle()
         tgiwm_susan.current_position = 0
@@ -171,17 +189,18 @@ class TestEmulator(unittest.TestCase):
         with open('items.txt', 'w') as File:
             File.write("Items:\n000 Stuff\n180 More Stuff")
         emulator.raw_input = "Yes"
-        emulator.read_items(tri_susan)
+        emulator.recover_items(tri_susan)
         self.assertIn("Item data saved!", tests)
         self.assertIn("Stuff", tri_susan.objects.keys())
         self.assertIn("More Stuff", tri_susan.objects.keys())
 
+    # noinspection SpellCheckingInspection
     def test_recover_items_no(self):
         trin_susan = emulator.LazySusan()
         with open('items.txt', 'w') as File:
             File.write("Items:\n000 Stuff\n180 More Stuff")
         emulator.raw_input = "No"
-        emulator.read_items(trin_susan)
+        emulator.recover_items(trin_susan)
         self.assertIn("Item data deleted!", tests)
         self.assertNotIn("Stuff", trin_susan.objects.keys())
         self.assertNotIn("More Stuff", trin_susan.objects.keys())
@@ -189,6 +208,30 @@ class TestEmulator(unittest.TestCase):
             lines = File.readlines()
         # Don't check the first line because it's the document title
         self.assertListEqual(lines[1:], [])
+
+    def test_get_users(self):
+        with open('users.txt', 'w') as File:
+            File.write("Users:\n000 XYZ")
+        output = emulator.get_users()
+        self.assertDictEqual({"XYZ": "000"}, output)
+
+    def test_edit_users(self):
+        with open('users.txt', 'w') as File:
+            File.write("Users:\n")
+        emulator.raw_input = "0"
+        emulator.edit_users()
+        with open('users.txt', 'r') as File:
+            users = File.readlines()
+        self.assertListEqual(['000 0\n'], users[1:])
+
+    def test_clear_all(self):
+        with open('items.txt', 'w') as File:
+            File.write("Items:\n000 A\n000 B\n000 C\n000 D\n000 E\n000 F\n")
+        emulator.clear_items()
+        with open('items.txt', 'r') as File:
+            items = File.readlines()
+        self.assertListEqual([], items[1:])
+
 
 if __name__ == '__main__':
     unittest.main()
