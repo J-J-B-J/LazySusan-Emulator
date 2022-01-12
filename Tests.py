@@ -31,6 +31,8 @@ class TestEmulator(unittest.TestCase):
         tests.clear()
         emulator.print = lambda output: tests.append(output)  # Send all
         # printed output from emulator to the tests list
+        with open('items.txt', 'w') as File:
+            File.write("Items:\n")
 
     def test_goto_invalid_modifier(self):
         tgim_susan = emulator.LazySusan()
@@ -44,21 +46,6 @@ class TestEmulator(unittest.TestCase):
         tgio_susan.goto()
         self.assertIn("You can't go to that item or modifier now.", tests)
 
-    def test_toggle_too_many_items(self):
-        tttmi_susan = emulator.LazySusan()
-        items_to_toggle = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
-                           "K"]
-        for letter in items_to_toggle:
-            emulator.raw_input = lambda _: letter
-            tttmi_susan.toggle()
-        self.assertIn("Sorry, but you can only have 10 items on the table.",
-                      tests)
-
-    def test_edit_invalid_object(self):
-        teio_susan = emulator.LazySusan()
-        emulator.raw_input = lambda _: 'XXXX'
-        teio_susan.edit()
-        self.assertIn("The item you asked for doesn't exist.", tests)
 
     def test_turn_float(self):
         ttf_susan = emulator.LazySusan()
@@ -111,20 +98,17 @@ class TestEmulator(unittest.TestCase):
 
     def test_enable(self):
         te_susan = emulator.LazySusan()
-        sauce = emulator.TableObject("Sauce", te_susan)
-        sauce.position = 0
         te_susan.current_position = 180
         emulator.raw_input = "Sauce"
-        te_susan.toggle()
-        self.assertEqual(True, sauce.use)
+        sauce = te_susan.toggle()
+        self.assertEqual(True, sauce.is_used())
         self.assertIn("Sauce", te_susan.objects)
         self.assertEqual(180, sauce.position)
 
     def test_disable(self):
         td_susan = emulator.LazySusan()
-        sauce = emulator.TableObject("Sauce", td_susan)
+        sauce = emulator.TableObject("Sauce", td_susan, use=True)
         emulator.raw_input = "Sauce"
-        td_susan.toggle()
         td_susan.toggle()
         self.assertEqual(False, sauce.use)
         self.assertNotIn("Sauce", td_susan.objects)
@@ -132,7 +116,7 @@ class TestEmulator(unittest.TestCase):
     def test_edit(self):
         ted_susan = emulator.LazySusan(starting_position=180)
         sauce = emulator.TableObject("Sauce", ted_susan)
-        sauce.used()
+        sauce.used("Sauce")
         self.assertEqual(180, sauce.position)
         self.assertEqual(True, sauce.use)
         ted_susan.current_position = 0
@@ -149,17 +133,16 @@ class TestEmulator(unittest.TestCase):
         self.assertEqual(180, tewd_susan.current_position)
         self.assertEqual(0, sauce.position)
         emulator.raw_input = "Sauce"
-        tewd_susan.toggle()
+        tewd_susan.edit()
         self.assertEqual(True, sauce.use)
         self.assertEqual(180, tewd_susan.current_position)
         self.assertEqual(180, sauce.position)
 
     def test_goto_item(self):
         tgi_susan = emulator.LazySusan()
-        test = emulator.TableObject("0", tgi_susan)
         tgi_susan.current_position = 180
         emulator.raw_input = "0"
-        tgi_susan.toggle()
+        test = tgi_susan.toggle()
         tgi_susan.current_position = 0
         self.assertEqual(True, test.use)
         self.assertEqual(0, tgi_susan.current_position)
@@ -169,10 +152,9 @@ class TestEmulator(unittest.TestCase):
 
     def test_goto_item_with_modifier(self):
         tgiwm_susan = emulator.LazySusan()
-        test = emulator.TableObject("90", tgiwm_susan)
         tgiwm_susan.current_position = 180
         emulator.raw_input = "90"
-        tgiwm_susan.toggle()
+        test = tgiwm_susan.toggle()
         tgiwm_susan.current_position = 0
         self.assertEqual(True, test.use)
         self.assertEqual(0, tgiwm_susan.current_position)
@@ -184,6 +166,29 @@ class TestEmulator(unittest.TestCase):
         emulator.raw_input = "Cancel"
         self.assertEqual(None, emulator.get_input())
 
+    def test_recover_items(self):
+        tri_susan = emulator.LazySusan()
+        with open('items.txt', 'w') as File:
+            File.write("Items:\n000 Stuff\n180 More Stuff")
+        emulator.raw_input = "Yes"
+        emulator.read_items(tri_susan)
+        self.assertIn("Item data saved!", tests)
+        self.assertIn("Stuff", tri_susan.objects.keys())
+        self.assertIn("More Stuff", tri_susan.objects.keys())
+
+    def test_recover_items_no(self):
+        trin_susan = emulator.LazySusan()
+        with open('items.txt', 'w') as File:
+            File.write("Items:\n000 Stuff\n180 More Stuff")
+        emulator.raw_input = "No"
+        emulator.read_items(trin_susan)
+        self.assertIn("Item data deleted!", tests)
+        self.assertNotIn("Stuff", trin_susan.objects.keys())
+        self.assertNotIn("More Stuff", trin_susan.objects.keys())
+        with open('items.txt', 'r') as File:
+            lines = File.readlines()
+        # Don't check the first line because it's the document title
+        self.assertListEqual(lines[1:], [])
 
 if __name__ == '__main__':
     unittest.main()

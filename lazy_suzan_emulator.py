@@ -1,4 +1,62 @@
+items_file = 'items.txt'
+
 raw_input = ""
+
+
+def read_items(susan):
+    try:
+        with open(items_file, 'r') as file:  # Try to read the file
+            read_data = file.readlines()
+    except FileNotFoundError:  # If the file doesn't exist
+        with open(items_file, 'w') as file:  # Create the file
+            file.write("Items:\n")
+            # Write this line at the start
+        with open(items_file, 'r') as file:
+            read_data = file.readlines()
+    read_data = read_data[1:]  # Remove first line of file, which is "Items:"
+    if not read_data:
+        print("No Data Found.")
+        return None
+    else:
+        new_read_data = []  # New read data gets set to the old read data, but
+        # without the newlines at the end of each line.
+        for line in read_data:
+            new_read_data.append(line.rstrip("\n"))
+        read_data = new_read_data
+        print("Data Found!")
+
+        restore = get_input("Do you want to restore items? ")
+        while restore != "Yes" and restore != "No":  # Check for a valid answer
+            restore = get_input("Invalid answer. Do you want to restore items?"
+                                )
+        if restore == "Yes":
+            print("Item data saved!")
+            lines = 0
+            for line in read_data:  # Save the old data to this program
+                TableObject(str(line[4:]), susan, int(line[:3]),
+                            True)
+                lines += 1
+            return
+        else:
+            with open(items_file, 'w') as file:  # Clear the file
+                file.write("Items:\n")
+            print("Item data deleted!")
+            return
+
+
+def add_item(item, position):
+    position = str(position)
+    for _ in range(0, 3 - len(position)):
+        position = "0" + str(position)  # Make positions 3-digit numbers.
+        # E.g. 12 becomes 012
+    position += " "  # Add a space at the end of position
+    text = position + item + "\n"
+    try:
+        with open(items_file, 'a') as file:
+            file.write(text)
+    except FileNotFoundError:
+        with open(items_file, 'w') as file:
+            file.write("Items:\n" + text)
 
 
 def get_input(prompt="Cancel"):  # This enables the input of text from a
@@ -6,7 +64,7 @@ def get_input(prompt="Cancel"):  # This enables the input of text from a
     if __name__ == '__main__':  # If this is the main program, just run the
         # normal input function
         return_value = str(input(prompt))
-    else:   # If in testing mode, return the input from the test program
+    else:  # If in testing mode, return the input from the test program
         return_value = str(raw_input)
     if "Cancel" in return_value:
         return None
@@ -24,12 +82,15 @@ def get_modifier():  # This function returns the modifier for the specified
 
 # This class is for real-world objects that can be placed on the lazy susan
 class TableObject:
-    def __init__(self, name, parent_susan):
-        # Name, Position on table, Currently on table?
+    def __init__(self, name, parent_susan, position=0, use=False):
         self.name = name
-        self.position = 0
-        self.use = False
+        self.position = position
+        self.use = use
         self.parent_susan = parent_susan
+
+        if self.use:
+            self.used(name, list_items=False)  # Enable, but don't list items
+            self.position = position
 
         # Add this object to the all_objects dictionary in its parent susan
         self.parent_susan.all_objects[self.name] = self
@@ -40,7 +101,7 @@ class TableObject:
 
         turn = (int(self.position) + int(
             mod)) - self.parent_susan.current_position  # Calculate turn
-        if "-" in str(turn):    # Deal with negative turns
+        if "-" in str(turn):  # Deal with negative turns
             turn_is_negative = True
             new_turn = ""
             for character in str(turn):
@@ -83,14 +144,17 @@ class TableObject:
         self.parent_susan.print_current_position()  # Show the table's
         # updated position
 
-    def used(self):  # This function enables the item
+    def used(self, new_name, list_items=True):  # This function enables the
+        # item
         self.use = True  # Enable in object
         self.parent_susan.objects[self.name] = self  # Enable in objects
         # dictionary
         self.position = self.parent_susan.current_position  # Set new
         # position of item
-        print("Position set.")
-        self.parent_susan.list_items()  # Print updated table items
+        self.name = new_name
+        if list_items:
+            self.parent_susan.list_items()  # Print updated table items
+            add_item(str(self.name), int(self.position))
 
     def unused(self):  # This function disables the item
         self.use = False  # Disable in object
@@ -114,10 +178,10 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
         # This function prints out all the objects in turn
         # It's used when a change to the objects' dictionary occurs
         print("\nItems on table:        *UPDATED*")
-        for table_obj, ID in self.objects.items():  # For each obj & id in
-            # objects
-            print(" - " + table_obj)  # Print name of object in bullet point
-            # format
+        for ID in self.objects.values():  # For each id in objects
+            print(" - Name: '" + str(ID.name) + "' Position: " +
+                  str(ID.position))
+            # Print name of object in bullet point format
         print("\n")
 
     def print_current_position(self):  # This function prints table's
@@ -206,17 +270,9 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
         if toggle_item_exists:
             toggle_identifier.unused()
         else:
-            found_usable_object = False
-            usable_object = ""
-            for obj in self.all_objects.values():
-                if not obj.is_used():
-                    found_usable_object = True
-                    usable_object = obj
-            if found_usable_object:
-                usable_object.used()
-                usable_object.name = toggle
-            else:
-                print("Sorry, but you can only have 10 items on the table.")
+            obj = TableObject(toggle, self)
+            obj.used(toggle)
+            return obj
 
     def edit(self):
         edit = get_input("Item to Edit? ")
@@ -236,25 +292,17 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
                 # Set the item's position to the current position
                 edit_identifier.position = self.current_position
             else:  # If the item is disabled
-                edit_identifier.used()  # Enable the item
+                edit_identifier.used(edit)  # Enable the item
         else:
-            print("The item you asked for doesn't exist.")
+            obj = TableObject(edit, self, use=True)
+            return obj
 
 
 def main():
     default_susan = LazySusan()
     default_susan.print_current_position()
-    # These are the objects that can be enabled:
-    TableObject("Cutlery", default_susan)
-    TableObject("Tomato Sauce", default_susan)
-    TableObject("BBQ Sauce", default_susan)
-    TableObject("Sweet Chilli Sauce", default_susan)
-    TableObject("Salad", default_susan)
-    TableObject("Salt", default_susan)
-    TableObject("Pepper", default_susan)
-    TableObject("Bible", default_susan)
-    TableObject("Olive Oil", default_susan)
-    TableObject("Desert", default_susan)
+    read_items(default_susan)
+    default_susan.list_items()
 
     while True:
         # Ask what the user wants to do

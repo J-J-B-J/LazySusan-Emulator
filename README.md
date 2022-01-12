@@ -3,8 +3,9 @@
 This program is a text-based emulator of a motorised lazy Susan. Since I am yet to make a functioning lazy Susan, in the meantime I have made this program. It asks who is requesting the item, then what item they want, then reports back what the table is doing.
 
 # Instructions
-When first started, the program will prompt you with "Action: ".
-There are four actions you can perform:
+If you have items saved from last time, the program will first ask you if you want to restore them.
+
+After this, the program will prompt you with "Action: ". There are four actions you can perform:
 - "Turn"
 - "Toggle"
 - "Goto"
@@ -14,7 +15,7 @@ There are four actions you can perform:
 The turn function is the most basic. Enter an integer, (positive or negative,) and the emulated lazy susan will turn that much. Note that is you enter a turn greater than 359 or less than -359, the program will continue adding or subtracting until the turn is within the above range. E.g. You enter "370", the table turns 10.
 
 ### Toggle
-Toggle either enables or disables an item. While using toggle, enter an item. If the item is already enabled, the program will disable it. If there is no enabled item called this, the program will make and enable a new one. You can only have 10 items on the table at once.
+Toggle either enables or disables an item. While using toggle, enter an item. If the item is already enabled, the program will disable it. If there is no enabled item called this, the program will make and enable a new one.
 
 In real life, enable is the equivalent of putting an item on the lazy susan, and disable is the equivalent of taking an item off.
 
@@ -73,6 +74,15 @@ The edit action sets the position of an item to wherever the table is now. I.e. 
 - Try-Except-Else blocks
 - Driver program deleted
 - PEP 8 compliance maintained
+- ---
+### UPDATE V1.9
+- Keeps items in a .txt file, when the program quits, items are saved.
+- Infinite number of items! (Or at least however many your computer can store before crashing)
+---
 ### COMING SOON
 - People's names
-- Settings kept in .json file
+- Compound actions
+- Clear action
+- Clock notation
+- Bulk toggle
+- Item presets
