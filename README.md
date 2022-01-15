@@ -10,10 +10,13 @@ Please note that the program automatically interprets all user input in title ca
 After this, the program will prompt you with "Action: ". There are six actions you can perform:
 - "Turn"
 - "Toggle"
+- "Bulk Toggle"
 - "Goto"
 - "Edit"
 - "Users"
 - "Clear"
+- "Preset"
+- "Edit Presets"
 
 ### Turn
 The turn function is the most basic. Enter an integer, (positive or negative,) and the emulated lazy susan will turn that much. Note that is you enter a turn greater than 359 or less than -359, the program will continue adding or subtracting until the turn is within the above range. E.g. You enter "370", the table turns 10.
@@ -24,6 +27,9 @@ Toggle either enables or disables an item. While using toggle, enter an item. If
 In real life, enable is the equivalent of putting an item on the lazy susan, and disable is the equivalent of taking an item off.
 
 When you have toggled an item, the program will print an updated list of items on the table.
+
+### Bulk Toggle
+Bulk toggle is the same as "Toggle," except the program keeps asking for items until you enter "Cancel."
 
 ### Goto
 When an item is enabled, you can run goto for the susan to bring it to you.
@@ -38,6 +44,12 @@ Run the Users function to toggle users, i.e. make and delete users. This is the 
 
 ### Clear
 This function simply clears all items from the table.
+
+### Preset
+This function allows you to use presets for items. For example, you could have a "Burger" preset that contains items such as "Chips," "Salt," and "Sauce." You could then use the preset action to activate all those items immediatley!
+
+### Edit Presets
+This function is can be used to adjust the presets.
 
 # UPDATES
 
@@ -86,7 +98,7 @@ This function simply clears all items from the table.
 ### UPDATE V1.9
 - Keeps items in a .txt file, when the program quits, items are saved.
 - Infinite number of items! (Or at least however many your computer can store before crashing)
-- - PEP 8 compliance maintained
+- PEP 8 compliance maintained
 ---
 ### UPDATE V2.0
 - People's names
@@ -94,8 +106,12 @@ This function simply clears all items from the table.
 - Automatically interprets all text in title case
 - PEP 8 compliance maintained
 ---
+### UPDATE V2.1
+- Bulk toggle
+- Item presets
+- PEP 8 compliance maintained
+---
 ### COMING SOON
 - Compound actions
 - Clock notation
-- Bulk toggle
-- Item presets
+- Image emulator with Pygame
