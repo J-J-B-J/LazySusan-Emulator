@@ -46,7 +46,7 @@ Run the Users function to toggle users, i.e. make and delete users. This is the 
 This function simply clears all items from the table.
 
 ### Preset
-This function allows you to use presets for items. For example, you could have a "Burger" preset that contains items such as "Chips," "Salt," and "Sauce." You could then use the preset action to activate all those items immediatley!
+This function allows you to use presets for items. For example, you could have a "Burger" preset that contains items such as "Chips," "Salt," and "Sauce." You could then use the preset action to activate all those items immediately!
 
 ### Edit Presets
 This function is can be used to adjust the presets.
@@ -115,10 +115,14 @@ This function is can be used to adjust the presets.
 - Debugged: When no items on table, program still prints items
 - FileManager class
 - PEP 8 compliance maintained
+- ---
+### UPDATE V2.3
+- Program now utilises f-strings
+- Classes separated into different files
+- PEP 8 compliance maintained
 ---
 ### COMING SOON
 (In order of probable appearance)
-- Classes separated into different files
 - Compound actions
 - Clock notation
 - Image emulator with Pygame

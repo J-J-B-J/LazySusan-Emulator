@@ -1,7 +1,9 @@
 import unittest  # The testing platform i'm using
 
+import file_manager
+import lazy_susan
 import main
-from main import FileManager, TableObject, LazySusan  # Include the code for
+from main import TableObject, LazySusan  # Include the code for
 # the program being tested
 
 # This variable keeps track of the printed output from the emulator, and is
@@ -29,13 +31,18 @@ rewrite = ""
 while rewrite != "OK":
     rewrite = input("Are you OK to erase items, users and presets? Enter OK: ")
 
+main.g.test = True
+
 
 # noinspection SpellCheckingInspection
 class TestEmulator(unittest.TestCase):
+    """These are the tests for all modules in this program."""
     def setUp(self) -> None:
         tests.clear()
         main.print = lambda output: tests.append(output)  # Send all
-        # printed output from emulator to the tests list
+        # printed output from the program to the tests list
+        file_manager.print = lambda output: tests.append(output)
+        lazy_susan.print = lambda output: tests.append(output)
         with open('items.txt', 'w') as setup_items:
             setup_items.write("Items:\n")
         with open('users.txt', 'w') as setup_users:
@@ -43,7 +50,7 @@ class TestEmulator(unittest.TestCase):
 
     def test_goto_invalid_modifier(self):
         tgim_susan = LazySusan()
-        main.raw_input = 'XXXX'
+        main.g.raw_input = 'XXXX'
         tgim_susan.goto()
         self.assertIn("That is not a valid user.", tests)
 
@@ -51,64 +58,64 @@ class TestEmulator(unittest.TestCase):
         with open('users.txt', 'a') as tgio_file:
             tgio_file.write("000 A")
         tgio_susan = LazySusan()
-        main.raw_input = "A"
+        main.g.raw_input = "A"
         tgio_susan.goto()
         self.assertIn("You can't go to that item or modifier now.", tests)
 
     def test_turn_float(self):
         ttf_susan = LazySusan()
-        main.raw_input = float(2.5)
+        main.g.raw_input = float(2.5)
         ttf_susan.turn()
         self.assertIn("The turn you entered wasn't an integer", tests)
 
     def test_turn_string(self):
         tts_susan = LazySusan()
-        main.raw_input = "This is a string, not an int"
+        main.g.raw_input = "This is a string, not an int"
         tts_susan.turn()
         self.assertIn("The turn you entered wasn't an integer", tests)
 
     def test_turn_45(self):
         tt4_susan = LazySusan()
-        main.raw_input = int(45)
+        main.g.raw_input = int(45)
         tt4_susan.turn()
         self.assertIn("The table is now in position 45.", tests)
 
     def test_turn_45_more(self):
         tt4m_susan = LazySusan(starting_position=45)
         tt4m_susan.print_current_position()
-        main.raw_input = int(45)
+        main.g.raw_input = int(45)
         tt4m_susan.turn()
         self.assertIn("The table is now in position 90.", tests)
 
     def test_turn_negative_45(self):
         ttn4_susan = LazySusan()
-        main.raw_input = "-45"
+        main.g.raw_input = "-45"
         ttn4_susan.turn()
         self.assertIn("The table is now in position 315.", tests)
 
     def test_turn_negative_45_more(self):
         ttn4m_susan = LazySusan(starting_position=315)
-        main.raw_input = "-45"
+        main.g.raw_input = "-45"
         ttn4m_susan.turn()
         self.assertIn("The table is now in position 270.", tests)
 
     def test_turn_more_360(self):
         ttm3_susan = LazySusan()
-        main.raw_input = int(450)
+        main.g.raw_input = int(450)
         ttm3_susan.turn()
         self.assertEqual(90, ttm3_susan.current_position)
 
     def test_turn_less_negative_360(self):
         # noinspection SpellCheckingInspection
         ttln3_susan = LazySusan()
-        main.raw_input = int(-450)
+        main.g.raw_input = int(-450)
         ttln3_susan.turn()
         self.assertEqual(270, ttln3_susan.current_position)
 
     def test_enable_and_disable(self):
         tead_susan = LazySusan()
         tead_susan.current_position = 180
-        main.raw_input = "Sauce"
+        main.g.raw_input = "Sauce"
         sauce = tead_susan.toggle()
         self.assertIn(sauce, tead_susan.objects.values())
         self.assertIn("Sauce", tead_susan.objects)
@@ -128,13 +135,13 @@ class TestEmulator(unittest.TestCase):
         self.assertEqual(180, sauce.position)
         self.assertIn(sauce, ted_susan.objects.values())
         ted_susan.current_position = 0
-        main.raw_input = "Cutlery"
+        main.g.raw_input = "Cutlery"
         ted_susan.edit()
         self.assertEqual(0, ted_susan.current_position)
 
     def test_toggle(self):
         tt_susan = LazySusan()
-        main.raw_input = "Sauce"
+        main.g.raw_input = "Sauce"
         tt_susan.toggle()
         self.assertIn("Sauce", tt_susan.objects)
 
@@ -143,7 +150,7 @@ class TestEmulator(unittest.TestCase):
         tgi_susan.current_position = 180
         with open('users.txt', 'a') as tgi_file:
             tgi_file.write("000 0")
-        main.raw_input = "0"
+        main.g.raw_input = "0"
         test = tgi_susan.toggle()
         tgi_susan.current_position = 0
         self.assertIn(test, tgi_susan.objects.values())
@@ -158,7 +165,7 @@ class TestEmulator(unittest.TestCase):
         tgiwm_susan.current_position = 180
         with open('users.txt', 'a') as tgiwm_file:
             tgiwm_file.write("090 90")
-        main.raw_input = "90"
+        main.g.raw_input = "90"
         test = tgiwm_susan.toggle()
         tgiwm_susan.current_position = 0
         self.assertIn(test, tgiwm_susan.objects.values())
@@ -168,45 +175,27 @@ class TestEmulator(unittest.TestCase):
         self.assertIn("The table is now in position 270.", tests)
 
     def test_cancel(self):
-        main.raw_input = "Cancel"
-        self.assertEqual(None, main.get("Test prompt: "))
+        main.g.raw_input = "Cancel"
+        self.assertEqual(None, main.g.get("Test prompt: "))
 
     def test_recover_items(self):
-        tri_susan = LazySusan()
         with open('items.txt', 'w') as tri_file:
             tri_file.write("Items:\n000 Stuff\n180 More Stuff")
-        main.raw_input = "Yes"
-        FileManager().recover_items(tri_susan)
-        self.assertIn("Item data saved!", tests)
-        self.assertIn("Stuff", tri_susan.objects.keys())
-        self.assertIn("More Stuff", tri_susan.objects.keys())
-
-    # noinspection SpellCheckingInspection
-    def test_recover_items_no(self):
-        trin_susan = LazySusan()
-        with open('items.txt', 'w') as trin_file:
-            trin_file.write("Items:\n000 Stuff\n180 More Stuff")
-        main.raw_input = "No"
-        FileManager().recover_items(trin_susan)
-        self.assertIn("Item data deleted!", tests)
-        self.assertNotIn("Stuff", trin_susan.objects.keys())
-        self.assertNotIn("More Stuff", trin_susan.objects.keys())
-        with open('items.txt', 'r') as trin_file:
-            lines = trin_file.readlines()
-        # Don't check the first line because it's the document title
-        self.assertListEqual(lines[1:], [])
+        main.g.raw_input = "Yes"
+        item_data = main.FileManager().recover_items()
+        self.assertListEqual([('Stuff', 0), ('More Stuff', 180)], item_data)
 
     def test_get_users(self):
         with open('users.txt', 'w') as tgu_file:
             tgu_file.write("Users:\n000 XYZ")
-        output = FileManager().get_users()
+        output = main.FileManager().get_users()
         self.assertDictEqual({"XYZ": "000"}, output)
 
     def test_edit_users(self):
         with open('users.txt', 'w') as teu_file:
             teu_file.write("Users:\n")
-        main.raw_input = "0"
-        FileManager().edit_users()
+        main.g.raw_input = "0"
+        main.FileManager().edit_users()
         with open('users.txt', 'r') as teu_file:
             users = teu_file.readlines()
         self.assertListEqual(['000 0\n'], users[1:])
@@ -214,29 +203,20 @@ class TestEmulator(unittest.TestCase):
     def test_clear_all(self):
         with open('items.txt', 'w') as tca_file:
             tca_file.write("Items:\n000 A\n000 B\n000 C\n000 D\n000 E\n")
-        FileManager().clear_items()
+        main.FileManager().clear_items()
         with open('items.txt', 'r') as tca_file:
             items = tca_file.readlines()
         self.assertListEqual([], items[1:])
 
     def test_preset(self):
-        tp_susan = LazySusan()
         with open('presets.txt', 'w') as tp_file:
-            tp_file.write("Presets:\n0\nA\nB\nC\nD\nE\n")
-        main.raw_input = "0"
-        FileManager().preset(tp_susan)
-        self.assertIn("A", tp_susan.objects.keys())
-        self.assertIn("B", tp_susan.objects.keys())
-        self.assertIn("C", tp_susan.objects.keys())
-        self.assertIn("D", tp_susan.objects.keys())
-        self.assertIn("E", tp_susan.objects.keys())
+            tp_file.write("Presets:\n0\nA\nB\nC\n")
+        main.g.raw_input = "0"
+        preset = main.FileManager().preset()
+        self.assertListEqual([("A", 0), ("B", 0), ("C", 0)], preset)
+        with open('presets.txt', 'w') as File:
+            File.write('Presets:\n')
 
 
 if __name__ == '__main__':
     unittest.main()
-    with open('presets.txt', 'w') as File:
-        File.write('Presets:\n')
-    with open('users.txt', 'w') as File:
-        File.write('Users:\n')
-    with open('items.txt', 'w') as File:
-        File.write('Items:\n')
