@@ -111,7 +111,14 @@ This function is can be used to adjust the presets.
 - Item presets
 - PEP 8 compliance maintained
 ---
+### UPDATE V2.2
+- Debugged: When no items on table, program still prints items
+- FileManager class
+- PEP 8 compliance maintained
+---
 ### COMING SOON
+(In order of probable appearance)
+- Classes separated into different files
 - Compound actions
 - Clock notation
 - Image emulator with Pygame
