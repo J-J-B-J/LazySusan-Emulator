@@ -3,7 +3,7 @@
 This program is a text-based emulator of a motorised lazy Susan. Since I am yet to make a functioning lazy Susan, in the meantime I have made this program. It asks who is requesting the item, then what item they want, then reports back what the table is doing.
 
 # Instructions
-If you have items saved from last time, the program will first ask you if you want to restore them.
+If you have items saved from last time, the program will automatically restore them.
 
 Please note that the program automatically interprets all user input in title case.
 
