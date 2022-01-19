@@ -1,34 +1,50 @@
-import get_input as g
-from file_manager import FileManager
-from table_object import TableObject
+import pygame.image
+
+import classes_and_functions.func_get_input as g
+from classes_and_functions.class_table_object import TableObject
+from txt_managers.manager_users import UserManager
+from txt_managers.manager_settings import SettingsManager as Sm
 
 
 class LazySusan:  # Class to keep track of an emulated lazy susan
     """A class to represent a lazy susan"""
-    def __init__(self, starting_position=int(0)):
+    def __init__(self, pygame_emulator, starting_position=int(0)):
+        self.emulator = pygame_emulator
         self.current_position = starting_position
         self.objects = {}
+
+        self.screen = pygame_emulator.screen
+
+    def blit(self):
+        pygame.draw.circle(self.screen, Sm().get_susan_colour(), (880, 400),
+                           350)
 
     def list_items(self):
         # This function prints out all the objects in turn
         # It's used when a change to the objects' dictionary occurs
         if self.objects:  # If there are objects:
-            print("\nItems on table:")
-            for ID in self.objects.values():  # For each id in objects
-                print(f" - {str(ID.name)}")
-                # Print name of object in bullet point format
-            print("\n")
+            self.emulator.out.print_this("Items on table:")
+            if len(self.objects) < 20:
+                row = 1
+                for ID in self.objects.values():  # For each id in objects
+                    self.emulator.out.print_this(f" - {str(ID.name)}", row)
+                    # Print name of object in bullet point format
+                    row += 1
+            else:   # If there are more than 20 items:
+                self.emulator.out.print_this("20+ objects")
         else:  # If there are no objects:
-            print("There are no objects on the table now.")
+            self.emulator.out.print_this(
+                "There are no objects on the table now.")
 
     def print_current_position(self):  # This function prints table's
         # current position
-        print(f"The table is now in position {str(self.current_position)}.")
+        self.emulator.out.print_this(
+            f"The table is now in position {str(self.current_position)}.")
 
-    def turn(self):
-        turn = g.get("By how much? ")  # Get a turn amount
+    def turn(self, emulator):
+        turn = g.get("By how much? ", emulator)  # Get a turn amount
         if turn is None:
-            print("Cancelled")
+            self.emulator.out.print_this("Cancelled")
             return
         try:
             if "-" in str(turn):
@@ -57,25 +73,28 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
                 turn = (360 - int(turn)) * -1
             if turn_is_negative:
                 # Print the turn as anticlockwise
-                print(f"The table turned {str(turn)} anticlockwise.")
+                self.emulator.out.print_this(
+                    f"The table turned {str(turn)} anticlockwise.")
             elif turn == 0:  # i.e. table is already in correct position
-                print("The table did not move.")
+                self.emulator.out.print_this("The table did not move.")
             else:
                 # Print the turn as clockwise
-                print(f"The table turned {str(turn)} clockwise.")
+                self.emulator.out.print_this(
+                    f"The table turned {str(turn)} clockwise.")
 
             self.print_current_position()  # Show the table's updated position
         except ValueError:
-            print("The turn you entered wasn't an integer")
+            self.emulator.out.print_this(
+                "The turn you entered wasn't an integer")
 
-    def goto(self):
-        modifier = FileManager().get_modifier()
+    def goto(self, emulator):
+        modifier = UserManager(self.emulator).get_modifier(emulator)
         if modifier is None:
-            print("Cancelled")
+            self.emulator.out.print_this("Cancelled")
             return
-        goto = g.get("Where to? ")  # Ask what item the person wants
+        goto = g.get("Where to? ", emulator)  # Ask what item the person wants
         if goto is None:
-            print("Cancelled")
+            self.emulator.out.print_this("Cancelled")
             return
         valid_answer_found = False  # The user hasn't yet provided valid answer
         for obj, goto_identifier in self.objects.items():  # Repeat w all
@@ -86,16 +105,16 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
                 # object
                 valid_answer_found = True
         if not valid_answer_found:
-            print("You can't go to that item or modifier now.")  # Give an
-            # error
+            self.emulator.out.print_this(
+                "You can't go to that item or modifier now.")  # Give an error
 
-    def toggle(self, bulk=False):
-        toggle = g.get("Item: ")  # Ask for item
+    def toggle(self, emulator, bulk=False):
+        toggle = g.get("Item: ", emulator)  # Ask for item
         if toggle is None:
             if bulk:
-                print("Bulk ended.")
+                self.emulator.out.print_this("Bulk ended.")
             else:
-                print("Cancelled")
+                self.emulator.out.print_this("Cancelled")
             return
         # Check if the item is enabled
         toggle_item_exists = False  # Haven't found the item yet
@@ -108,18 +127,18 @@ class LazySusan:  # Class to keep track of an emulated lazy susan
         if toggle_item_exists:
             toggle_identifier.unused()
         else:
-            obj = TableObject(toggle, self)
+            obj = TableObject(toggle, self, self.emulator)
             obj.used(toggle, self)
             if not bulk:
                 return obj
         if bulk:
-            self.toggle(bulk=True)
+            self.toggle(emulator, bulk=True)
 
-    def edit(self):
-        edit = g.get("Item to Edit? ")
+    def edit(self, emulator):
+        edit = g.get("Item to Edit? ", emulator)
         # Ask for item
         if edit is None:
-            print("Cancelled")
+            self.emulator.out.print_this("Cancelled")
             return
         # Check the existence of the item (it's presence in all_objects)
         edit_item_exists = False  # Haven't found the item yet

@@ -1,0 +1,13 @@
+Screen Width:                 1300
+Screen Height:                800
+Screen Background R:          220
+Screen Background G:          220
+Screen Background B:          220
+Screen Caption:               Lazy Susan
+Screen Icon Path:             images/Logo.png
+Lazy Susan Colour R:          200
+Lazy Susan Colour G:          200
+Lazy Susan Colour B:          150
+Text Colour R:                0
+Text Colour G:                0
+Text Colour B:                0

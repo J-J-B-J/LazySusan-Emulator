@@ -1,13 +1,14 @@
-import get_input as g
-from file_manager import FileManager
+import classes_and_functions.func_get_input as g
+from txt_managers.manager_items import ItemManager
 
 
 class TableObject:
     """A class to represent real-world items placed on the lazy susan."""
-    def __init__(self, name, parent_susan, position=int(0)):
+    def __init__(self, name, parent_susan, emulator, position=int(0)):
         self.name = name
-        self.position = g.get(
-            f"What is the position of {self.name}? ")
+        self.emulator = emulator
+        self.position = g.get(f"What is the position of {self.name}? ",
+                              self.emulator)
         self.parent_susan = parent_susan
 
         self.used(name, parent_susan, list_items=False)  # Enable, but
@@ -16,7 +17,8 @@ class TableObject:
 
     # Goto turns table so that the chosen item is facing the chosen person
     def goto(self, mod):
-        print(f"Going to {self.name}.")  # Say where the table should go
+        self.emulator.out.print_this(f"Going to {self.name}.")
+        # Say where the table should go
 
         turn = (int(self.position) + int(
             mod)) - self.parent_susan.current_position  # Calculate turn
@@ -50,12 +52,13 @@ class TableObject:
             turn = (360 - int(turn)) * -1
         if turn_is_negative:
             # Print the turn as anticlockwise
-            print(f"The table turned {turn} anticlockwise.")
+            self.emulator.out.print_this(
+                f"The table turned {turn} anticlockwise.")
         elif turn == 0:  # i.e. table is already in correct position
-            print("The table did not move.")
+            self.emulator.out.print_this("The table did not move.")
         else:
             # Print the turn as clockwise
-            print(f"The table turned {turn} clockwise.")
+            self.emulator.out.print_this(f"The table turned {turn} clockwise.")
 
         self.parent_susan.print_current_position()  # Show the table's
         # updated position
@@ -69,10 +72,10 @@ class TableObject:
         self.name = new_name
         if list_items:
             self.parent_susan.list_items()  # Print updated table items
-        FileManager().add_item(str(self.name), int(self.position))
+        ItemManager(self.emulator).add_item(str(self.name), int(self.position))
 
     def unused(self):  # This function disables the item
         del self.parent_susan.objects[self.name]  # Disable in objects
         # dictionary
         self.parent_susan.list_items()  # Print updated table items
-        FileManager().remove_item(self.name)
+        ItemManager(self.emulator).remove_item(self.name)

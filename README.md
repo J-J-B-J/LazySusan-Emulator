@@ -2,6 +2,8 @@
 
 This program is a text-based emulator of a motorised lazy Susan. Since I am yet to make a functioning lazy Susan, in the meantime I have made this program. It asks who is requesting the item, then what item they want, then reports back what the table is doing.
 
+## Run "main.py" to run the program
+
 # Instructions
 If you have items saved from last time, the program will automatically restore them.
 
@@ -113,7 +115,7 @@ This function is can be used to adjust the presets.
 ---
 ### UPDATE V2.2
 - Debugged: When no items on table, program still prints items
-- FileManager class
+- PresetManager class
 - PEP 8 compliance maintained
 - ---
 ### UPDATE V2.3
