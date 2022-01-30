@@ -112,17 +112,33 @@ This function is can be used to adjust the presets.
 - PEP 8 compliance maintained
 ---
 ### UPDATE V2.2
+
 - Debugged: When no items on table, program still prints items
-- FileManager class
+- UserManager class
 - PEP 8 compliance maintained
+
 - ---
+
 ### UPDATE V2.3
+
 - Program now utilises f-strings
 - Classes separated into different files
 - PEP 8 compliance maintained
+
 ---
+
+### UPDATE V2.4
+
+- Classes Separated into different files
+- 16 more tests
+- PEP 8 compliance maintained
+
+---
+
 ### COMING SOON
+
 (In order of probable appearance)
+
 - Compound actions
 - Clock notation
 - Image emulator with Pygame

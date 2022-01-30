@@ -2,7 +2,7 @@ raw_input = ""
 test = False
 
 
-def get(prompt):
+def get(prompt=""):
     """Replaces the input function, to allow for input from a test file."""
     if not test:  # If this is the main program, just run the normal input
         # function
